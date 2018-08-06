@@ -1,0 +1,58 @@
+---
+title: "E-mini Strategies"
+output: html_notebook
+---
+
+Initiate IB API connection
+
+IBrokersRef() to get IBrokers R-API reference
+
+```{r}
+source('utils/utils.R')
+tws.conn = twsConnect(clientId = 1, port = 7496)
+```
+
+Check the current portfolio value
+
+```{r}
+acct = reqAccountUpdates(tws.conn)
+twsPortfolioValue(acct)
+```
+
+Retrieve e-mini data
+
+```{r}
+expiry.month = '201809'
+
+tws.future.ym = twsFuture('YM', exch='ECBOT', expiry=expiry.month, multiplier='5')
+tws.future.nq = twsFuture('NQ', exch='GLOBEX', expiry=expiry.month, multiplier='20')
+tws.future.es = twsFuture('ES', exch='GLOBEX', expiry=expiry.month, multiplier='50')
+
+tws.future.ixb = twsFuture('IXB', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Materials
+tws.future.ixe = twsFuture('IXE', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Energy
+tws.future.ixi = twsFuture('IXI', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Industrial
+tws.future.ixm = twsFuture('IXM', exch='GLOBEX', expiry=expiry.month, multiplier='250') #Financial
+tws.future.ixr = twsFuture('IXR', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Consumer Staples
+tws.future.ixt = twsFuture('IXT', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Technology
+tws.future.ixu = twsFuture('IXU', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Utilities
+tws.future.ixv = twsFuture('IXV', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Health Care
+tws.future.ixy = twsFuture('IXY', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Consumer Discretionary
+
+tws.contracts = list(tws.future.ym, tws.future.nq, tws.future.es)
+mkt.data = x.ib.getHistoricalData(tws.conn, tws.contracts, barSize = '30 secs', whatToShow = 'TRADES', useRTH = "0", duration = "1 D")
+```
+
+Pre-process the data
+
+```{r}
+ym.data[]
+```
+
+Disconnect
+
+```{r}
+twsDisconnect(tws.conn)
+```
+
+
+
