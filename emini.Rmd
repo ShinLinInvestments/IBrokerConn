@@ -58,10 +58,18 @@ mkt.data[(volume == 0) & ((open != high) | (high != low) | (low != close)),]
 mkt.data[(high < low) | (close < low) | (close > high) | (open < low) | (open > high),]
 ```
 
+Data processing
+
+```{r}
+mkt.data[, ret := c(NA, close[-1]) / c(NA, close[-length(close)]) - 1, by = symbol]
+```
+
 General Stats
 
 ```{r}
-mkt.data[]
+mkt.data[, idx := 1:nrow(.SD), by=symbol]
+gp = ggplot(melt(mkt.data[!is.na(ret), .(idx,ret=cumprod(ret+1)-1), by=symbol], id.vars = c('idx','symbol')), aes(x=idx, y=value, color=symbol))+geom_line()
+print(gp)
 ```
 
 Disconnect

@@ -1,4 +1,5 @@
 library(data.table)
+library(ggplot2)
 
 source('utils/utils.infra.R')
 source('utils/utils.math.R')
