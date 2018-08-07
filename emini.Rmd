@@ -39,13 +39,29 @@ tws.future.ixv = twsFuture('IXV', exch='GLOBEX', expiry=expiry.month, multiplier
 tws.future.ixy = twsFuture('IXY', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Consumer Discretionary
 
 tws.contracts = list(tws.future.ym, tws.future.nq, tws.future.es)
-mkt.data = x.ib.getHistoricalData(tws.conn, tws.contracts, barSize = '30 secs', whatToShow = 'TRADES', useRTH = "0", duration = "1 D")
+mkt.data = x.ib.getHistoricalData(tws.conn, tws.contracts, barSize = '30 secs', whatToShow = 'TRADES', useRTH = "0", duration = "1 M")
 ```
 
-Pre-process the data
+Data checking
 
 ```{r}
-ym.data[]
+# Gaps in time
+mkt.data[, .N, by=.(date, intv)][N != mkt.data[,uniqueN(symbol)], paste(date, intv, ': expected', mkt.data[,uniqueN(symbol)], 'securities but only found', N)]
+# Invalid value (OHLC-Vlm)
+rbindlist(lapply(c('open','high','low','close','volume'), function(item){
+    mkt.data[order(get(item))][, rbind(.SD[1][, .(item=paste(item, '.min', sep=''), value=get(item), date, intv)], 
+                                       .SD[nrow(.SD)][, .(item=paste(item, '.max', sep=''), value=get(item), date, intv)]), by=symbol]
+}), use.names = TRUE, fill = TRUE)[order(symbol)]
+# Sanity check 1: When volume is zero, OHLC should be exactly the same
+mkt.data[(volume == 0) & ((open != high) | (high != low) | (low != close)),]
+# Sanity check 2: L <= O,C <= H
+mkt.data[(high < low) | (close < low) | (close > high) | (open < low) | (open > high),]
+```
+
+General Stats
+
+```{r}
+mkt.data[]
 ```
 
 Disconnect
