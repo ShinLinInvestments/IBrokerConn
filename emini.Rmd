@@ -62,11 +62,17 @@ Data processing
 
 ```{r}
 mkt.data[, ret := c(NA, close[-1]) / c(NA, close[-length(close)]) - 1, by = symbol]
+mkt.data[]
 ```
 
-General Stats
+Stats
 
 ```{r}
+# Mean & StDev of return
+mkt.data[, .(mean.close = meanNA(close), mean.ret = meanNA(ret), sd.ret = sdNA(ret)), by=symbol]
+# Range within Bin
+
+# Cumulative Return
 mkt.data[, idx := 1:nrow(.SD), by=symbol]
 gp = ggplot(melt(mkt.data[!is.na(ret), .(idx,ret=cumprod(ret+1)-1), by=symbol], id.vars = c('idx','symbol')), aes(x=idx, y=value, color=symbol))+geom_line()
 print(gp)
