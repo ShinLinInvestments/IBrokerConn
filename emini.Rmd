@@ -31,7 +31,7 @@ tws.future.es = twsFuture('ES', exch='GLOBEX', expiry=expiry.month, multiplier='
 tws.future.ixb = twsFuture('IXB', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Materials
 tws.future.ixe = twsFuture('IXE', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Energy
 tws.future.ixi = twsFuture('IXI', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Industrial
-tws.future.ixm = twsFuture('IXM', exch='GLOBEX', expiry=expiry.month, multiplier='250') #Financial
+tws.future.ixm = twsFuture('IXM', exch='GLOBEX', expiry=expiry.month, multiplier='250') # Financial
 tws.future.ixr = twsFuture('IXR', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Consumer Staples
 tws.future.ixt = twsFuture('IXT', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Technology
 tws.future.ixu = twsFuture('IXU', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Utilities
@@ -62,7 +62,7 @@ Data processing
 
 ```{r}
 mkt.data[, ret := c(NA, close[-1]) / c(NA, close[-length(close)]) - 1, by = symbol]
-mkt.data[]
+mkt.data[, session := 1][intv > '160000', session := 2][intv < '093000', session := 0] # session = 0,1,2 for pre-open, rth, post-close
 ```
 
 Stats
@@ -77,6 +77,13 @@ mkt.data[, idx := 1:nrow(.SD), by=symbol]
 gp = ggplot(melt(mkt.data[!is.na(ret), .(idx,ret=cumprod(ret+1)-1), by=symbol], id.vars = c('idx','symbol')), aes(x=idx, y=value, color=symbol))+geom_line()
 print(gp)
 ```
+
+Mean-reverting Strategies
+
+```{r}
+# Enter a buy 300 below close to see if it gets picked up overnight
+```
+
 
 Disconnect
 
