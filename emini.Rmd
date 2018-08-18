@@ -39,7 +39,7 @@ tws.future.ixv = twsFuture('IXV', exch='GLOBEX', expiry=expiry.month, multiplier
 tws.future.ixy = twsFuture('IXY', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Consumer Discretionary
 
 tws.contracts = list(tws.future.ym, tws.future.nq, tws.future.es)
-mkt.data = x.ib.getHistoricalData(tws.conn, tws.contracts, barSize = '30 secs', whatToShow = 'TRADES', useRTH = "0", duration = "1 M")
+mkt.data = x.ib.getHistoricalData(tws.conn, tws.contracts, start.date = '20180620', barSize = '30 secs', whatToShow = 'TRADES', useRTH = "0")
 ```
 
 Data checking
@@ -82,8 +82,14 @@ Mean-reverting Strategies
 
 ```{r}
 # Enter a buy 300 below close to see if it gets picked up overnight
+
 ```
 
+Momentum Strategies
+
+```{r}
+#
+```
 
 Disconnect
 
