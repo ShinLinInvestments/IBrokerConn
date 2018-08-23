@@ -13,10 +13,8 @@ if(tolower(Sys.info()['sysname']) == 'darwin'){
 flog.layout(layout.format('~t|~l|~n|~f|~m'))
 flog.threshold(DEBUG)
 
-# Infra functions
+# General Infra
 x.p <- function(...) paste(..., sep='')
-
-x.isYmd <- function(d) grepl('^[1-2][0-9][0-9][0-9][0-1][0-9][0-3][0-9]$', as.character(d))
 
 x.checkCond <- function(cond, err.message){
     if(all(cond)) return()
@@ -24,3 +22,12 @@ x.checkCond <- function(cond, err.message){
     stop(err.message)
 }
 
+# Datetime Infra
+x.isYmd <- function(d) grepl('^[1-2][0-9][0-9][0-9][0-1][0-9][0-3][0-9]$', as.character(d))
+x.isHMS <- function(intv) grepl('^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$', as.character(intv))
+
+x.ymdhms2POSIXct <- function(ymd, intv){
+    x.checkCond(x.isYmd(ymd), paste('date =', ymd, 'not valid'))
+    x.checkCond(x.isHMS(intv), paste('intv =', intv, 'not valid'))
+    as.POSIXct(paste(ymd, intv), format = '%Y%m%d %H:%M:%S')
+}

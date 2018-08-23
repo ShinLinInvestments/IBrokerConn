@@ -47,6 +47,7 @@ Data checking
 ```{r}
 # Gaps in time
 mkt.data[, .N, by=.(date, intv)][N != mkt.data[,uniqueN(symbol)], paste(date, intv, ': expected', mkt.data[,uniqueN(symbol)], 'securities but only found', N)]
+paste(mkt.data[, .N, by=.(symbol, date, hour=substr(intv,1,2))][(hour == 16 & N != 45 * 2) | (hour != 16 & N != 60 * 2), paste(symbol, 'in', date, 'hour =', hour, 'only has', N, 'points')], collapse = ', ')
 # Invalid value (OHLC-Vlm)
 rbindlist(lapply(c('open','high','low','close','volume'), function(item){
     mkt.data[order(get(item))][, rbind(.SD[1][, .(item=paste(item, '.min', sep=''), value=get(item), date, intv)], 
@@ -61,28 +62,70 @@ mkt.data[(high < low) | (close < low) | (close > high) | (open < low) | (open > 
 Data processing
 
 ```{r}
-mkt.data[, ret := c(NA, close[-1]) / c(NA, close[-length(close)]) - 1, by = symbol]
-mkt.data[, session := 1][intv > '160000', session := 2][intv < '093000', session := 0] # session = 0,1,2 for pre-open, rth, post-close
+mkt.data[, prev.close := c(NA, close[-length(close)]), by = symbol]
+mkt.data[, prev.low := c(NA, low[-length(low)]), by = symbol]
+mkt.data[, prev.high := c(NA, high[-length(high)]), by = symbol]
+mkt.data[, ret := close / prev.close - 1, by = symbol]
+mkt.data[, session := 1][intv > '16:00:00', session := 2][intv < '09:30:00', session := 0] # session = 0,1,2 for pre-open, rth, post-close
+# Forward Return
+mkt.data[, datetime := x.ymdhms2POSIXct(date, intv)]
+all.datetimes = mkt.data[, sort(unique(datetime))]
+fwd.term.structure = c(1,2,4,6,8,10,20,30,40,60)
+#system.time(
+fwd.rets <- rbindlist(lapply(1 : (length(all.datetimes) - 1), function(idx){
+    ymd = format(all.datetimes[idx], '%Y%m%d')
+    hms = format(all.datetimes[idx], '%H:%M:%S')
+    cur.mkt.data = mkt.data[datetime %in% all.datetimes[(idx + 1) : (idx + max(fwd.term.structure))]]
+    flog.info(paste('generating fwd.rets for', ymd, hms, 'with fwd period structure =', paste(fwd.term.structure, collapse = ',')))
+    res1 = rbindlist(mclapply(mc.cores = detectCores(), fwd.term.structure, function(fwd.ret.period){
+        if(idx + fwd.ret.period > length(all.datetimes)) return(NULL)
+        cur.mkt.data[datetime <= all.datetimes[idx + fwd.ret.period], .(fwd.period = fwd.ret.period, 
+            fwd.ret = prodNA(ret + 1) - 1, high = max(high), low = min(low), start = min(datetime), end = max(datetime)), by = symbol]
+    }))
+    data.table(date = ymd, intv = hms, res1)
+}))
+#)
 ```
 
-Stats
+General Stats
 
 ```{r}
 # Mean & StDev of return
 mkt.data[, .(mean.close = meanNA(close), mean.ret = meanNA(ret), sd.ret = sdNA(ret)), by=symbol]
-# Range within Bin
-
 # Cumulative Return
 mkt.data[, idx := 1:nrow(.SD), by=symbol]
 gp = ggplot(melt(mkt.data[!is.na(ret), .(idx,ret=cumprod(ret+1)-1), by=symbol], id.vars = c('idx','symbol')), aes(x=idx, y=value, color=symbol))+geom_line()
 print(gp)
 ```
 
+Price Gaps
+```{r}
+# Number of occurance
+mkt.data[, .(num.down.gap = sumNA(prev.low > high), pct.down.gap = sumNA(prev.low > high)/.N, num.up.gap = sumNA(prev.high < low), pct.up.gap = sumNA(prev.high < low)/.N), by = .(symbol, session)]
+# Forward return decomposed minute bins
+
+```
+
 Mean-reverting Strategies
 
 ```{r}
-# Enter a buy 300 below close to see if it gets picked up overnight
+# Resistance/Support
 
+# Bollinger bands
+cur.mkt.data = mkt.data[symbol == 'YM', ]
+num.intvs = nrow(cur.mkt.data)
+lookback = 30; entry.scalar = 10
+path.dt = rbindlist(mclapply(mc.cores = detectCores(), (lookback + 1) : num.intvs, function(idx){
+    m0 = cur.mkt.data[(idx - lookback) : (idx - 1)]
+    c0 = cur.mkt.data[idx]
+    m0.summary = m0[, .(mean.d.close = meanNA(close - prev.close), vol.d.close = sdNA(close - prev.close))]
+    flog.info(paste(c0$date, c0$intv, 'mean.d.close =', m0.summary$mean.d.close, 'vol.d.close =', m0.summary$vol.d.close))
+    data.table(c0, m0.summary)
+}))
+path.dt[, dir := 0]
+path.dt[mean.d.close + entry.scalar * vol.d.close < high, dir := -1]
+path.dt[mean.d.close - entry.scalar * vol.d.close > low, dir := 1]
+path.dt[, shs := cumsum(dir)]
 ```
 
 Momentum Strategies
