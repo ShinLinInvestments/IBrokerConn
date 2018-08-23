@@ -31,3 +31,13 @@ x.ymdhms2POSIXct <- function(ymd, intv){
     x.checkCond(x.isHMS(intv), paste('intv =', intv, 'not valid'))
     as.POSIXct(paste(ymd, intv), format = '%Y%m%d %H:%M:%S')
 }
+
+# I/O
+x.write <- function(path, data, col.date){
+    x.checkCond(col.date %in% colnames(data), paste(col.date, 'not in input data'))
+    x.checkCond(data[, x.isYmd(get(col.date)[1])], paste(col.date, 'is not in YYYYMMDD format'))
+    all.dates = data[, sort(unique(get(col.date)))]
+    lapply(all.dates, function(d){
+        write.csv(data[get(col.date) == d], x.p(path, d, '.csv'), quote = FALSE, row.names = FALSE)
+    })
+}
