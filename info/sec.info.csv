@@ -1,0 +1,2 @@
+msuk,conId,symbol,sectype,exch,primary,expiry,strike,currency,right,local,multiplier,include_expired,secIdType,secId
+1001201809,0,ES,FUT,GLOBEX,,201809,0.0,USD,,,50,0,,
