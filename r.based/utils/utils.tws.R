@@ -12,7 +12,7 @@ x.ib.getHistoricalData <- function(tws.conn, tws.contracts, start.date, end.date
     cur.end.date = end.date
     res = c()
     while(cur.end.date >= start.date){
-        pv0 = reqHistoricalData(tws.conn, tws.contracts, endDateTime = cur.end.datetime, duration = "5 D", ...)
+        pv0 = reqHistoricalData(tws.conn, tws.contracts, endDateTime = cur.end.datetime, duration = "1 D", ...)
         pv1 = data.table(pv0)
         all.datetimes = index(pv0)
         pv1 = data.table(date = format(all.datetimes, '%Y%m%d'), intv = format(all.datetimes, '%H:%M:%S'), contract.specs.df[rep(1,nrow(pv1)),], pv1)
