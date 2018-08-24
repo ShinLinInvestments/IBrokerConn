@@ -41,3 +41,9 @@ x.write <- function(path, data, col.date){
         write.csv(data[get(col.date) == d], x.p(path, d, '.csv'), quote = FALSE, row.names = FALSE)
     })
 }
+
+x.read <- function(path, start.date, end.date){
+    
+}
+
+
