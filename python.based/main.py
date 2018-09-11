@@ -1,7 +1,6 @@
 from ibapi.wrapper import EWrapper
 from ibapi.client import EClient
-from ibapi.contract import Contract as IBcontract
-from threading import Thread
+import threading
 import queue
 import datetime
 
@@ -14,12 +13,9 @@ STARTED = object()
 TIME_OUT = object()
 
 class finishableQueue(object):
-
     def __init__(self, queue_to_finish):
-
         self._queue = queue_to_finish
         self.status = STARTED
-
     def get(self, timeout):
         """
         Returns a list of queue elements once timeout is finished, or a FINISHED flag is received in the queue
@@ -44,10 +40,7 @@ class finishableQueue(object):
                 ## give up and return what we have
                 finished = True
                 self.status = TIME_OUT
-
-
         return contents_of_queue
-
     def timed_out(self):
         return self.status is TIME_OUT
 
@@ -61,60 +54,57 @@ class TestWrapper(EWrapper):
     We override methods in EWrapper that will get called when this action happens, like currentTime
     Extra methods are added as we need to store the results in this object
     """
-
     def __init__(self):
-        self._my_contract_details = {}
-        self._my_historic_data_dict = {}
-        self._my_errors = queue.Queue()
+        self._ibContractDetails = {}
+        self._historicDataDict = {}
+        self.init_error()
 
     ## error handling code
     def init_error(self):
-        error_queue=queue.Queue()
-        self._my_errors = error_queue
+        self._errorQueue = queue.Queue()
 
     def get_error(self, timeout=5):
         if self.is_error():
             try:
-                return self._my_errors.get(timeout=timeout)
+                return self._errorQueue.get(timeout=timeout)
             except queue.Empty:
                 return None
 
         return None
 
     def is_error(self):
-        an_error_if=not self._my_errors.empty()
+        an_error_if=not self._errorQueue.empty()
         return an_error_if
 
     def error(self, id, errorCode, errorString):
         ## Overriden method
         errormsg = "IB error id %d errorcode %d string %s" % (id, errorCode, errorString)
-        self._my_errors.put(errormsg)
-
+        self._errorQueue.put(errormsg)
 
     ## get contract details code
     def init_contractdetails(self, reqId):
-        contract_details_queue = self._my_contract_details[reqId] = queue.Queue()
+        contract_details_queue = self._ibContractDetails[reqId] = queue.Queue()
 
         return contract_details_queue
 
     def contractDetails(self, reqId, contractDetails):
         ## overridden method
 
-        if reqId not in self._my_contract_details.keys():
+        if reqId not in self._ibContractDetails.keys():
             self.init_contractdetails(reqId)
 
-        self._my_contract_details[reqId].put(contractDetails)
+        self._ibContractDetails[reqId].put(contractDetails)
 
     def contractDetailsEnd(self, reqId):
         ## overriden method
-        if reqId not in self._my_contract_details.keys():
+        if reqId not in self._ibContractDetails.keys():
             self.init_contractdetails(reqId)
 
-        self._my_contract_details[reqId].put(FINISHED)
+        self._ibContractDetails[reqId].put(FINISHED)
 
     ## Historic data code
     def init_historicprices(self, tickerid):
-        historic_data_queue = self._my_historic_data_dict[tickerid] = queue.Queue()
+        historic_data_queue = self._historicDataDict[tickerid] = queue.Queue()
 
         return historic_data_queue
 
@@ -125,7 +115,7 @@ class TestWrapper(EWrapper):
         ## Note I'm choosing to ignore barCount, WAP and hasGaps but you could use them if you like
         bardata=(bar.date, bar.open, bar.high, bar.low, bar.close, bar.volume)
 
-        historic_data_dict=self._my_historic_data_dict
+        historic_data_dict=self._historicDataDict
 
         ## Add on to the current data
         if tickerid not in historic_data_dict.keys():
@@ -136,19 +126,15 @@ class TestWrapper(EWrapper):
     def historicalDataEnd(self, tickerid, start:str, end:str):
         ## overriden method
 
-        if tickerid not in self._my_historic_data_dict.keys():
+        if tickerid not in self._historicDataDict.keys():
             self.init_historicprices(tickerid)
 
-        self._my_historic_data_dict[tickerid].put(FINISHED)
+        self._historicDataDict[tickerid].put(FINISHED)
 
 
 
 
 class TestClient(EClient):
-    """
-    The client method
-    We don't override native methods, but instead call them from our own wrappers
-    """
     def __init__(self, wrapper):
         ## Set up with a wrapper inside
         EClient.__init__(self, wrapper)
@@ -240,32 +226,28 @@ class TestClient(EClient):
 
 
 
-class TestApp(TestWrapper, TestClient):
+class ibApiMaster(TestWrapper, TestClient):
     def __init__(self, ipaddress, portid, clientid):
         TestWrapper.__init__(self)
         TestClient.__init__(self, wrapper=self)
-
         self.connect(ipaddress, portid, clientid)
-
-        thread = Thread(target = self.run)
+        thread = threading.Thread(target = self.run)
         thread.start()
-
         setattr(self, "_thread", thread)
-
         self.init_error()
-
 
 #if __name__ == '__main__':
 
-app = TestApp("127.0.0.1", 7496, 1)
+app = ibApiMaster("127.0.0.1", 7496, 1)
 
-ibcontract = IBcontract()
+ibcontract = ibapi.contract.Contract()
 ibcontract.secType = "FUT"
 ibcontract.lastTradeDateOrContractMonth="201809"
-ibcontract.symbol="ES"
+ibcontract.symbol="NQ"
 ibcontract.exchange="GLOBEX"
 
 resolved_ibcontract=app.resolve_ib_contract(ibcontract)
+print(resolved_ibcontract)
 
 historic_data = app.get_IB_historical_data(resolved_ibcontract)
 
