@@ -44,10 +44,6 @@ class finishableQueue(object):
     def timed_out(self):
         return self.status is TIME_OUT
 
-
-
-
-
 class TestWrapper(EWrapper):
     """
     The wrapper deals with the action coming back from the IB gateway or TWS instance
@@ -77,29 +73,20 @@ class TestWrapper(EWrapper):
     def error(self, id, errorCode, errorString): # Overriding
         self._errorQueue.put("IB errorID:%d errorCode:%d %s" % (id, errorCode, errorString))
 
-    ## get contract details code
     def initContractDetails(self, reqId):
         contractDetailsQueue = self._ibContractDetails[reqId] = queue.Queue()
-
-        return contractDetailsQueue
-
-    def contractDetails(self, reqId, contractDetails):
-        ## overridden method
-
-        if reqId not in self._ibContractDetails.keys():
+        return(contractDetailsQueue)
+    def contractDetails(self, reqId, contractDetails): # Overriding
+        if reqId not in self._ibContractDetails:
             self.initContractDetails(reqId)
-
         self._ibContractDetails[reqId].put(contractDetails)
-
-    def contractDetailsEnd(self, reqId):
-        ## overriden method
-        if reqId not in self._ibContractDetails.keys():
+    def contractDetailsEnd(self, reqId): # Overriding
+        if reqId not in self._ibContractDetails:
             self.initContractDetails(reqId)
-
         self._ibContractDetails[reqId].put(FINISHED)
 
     ## Historic data code
-    def init_historicprices(self, tickerid):
+    def initHistoricData(self, tickerid):
         historic_data_queue = self._historicDataDict[tickerid] = queue.Queue()
 
         return historic_data_queue
@@ -115,7 +102,7 @@ class TestWrapper(EWrapper):
 
         ## Add on to the current data
         if tickerid not in historic_data_dict.keys():
-            self.init_historicprices(tickerid)
+            self.initHistoricData(tickerid)
 
         historic_data_dict[tickerid].put(bardata)
 
@@ -123,7 +110,7 @@ class TestWrapper(EWrapper):
         ## overriden method
 
         if tickerid not in self._historicDataDict.keys():
-            self.init_historicprices(tickerid)
+            self.initHistoricData(tickerid)
 
         self._historicDataDict[tickerid].put(FINISHED)
 
@@ -185,7 +172,7 @@ class TestClient(EClient):
 
 
         ## Make a place to store the data we're going to return
-        historic_data_queue = finishableQueue(self.init_historicprices(tickerid))
+        historic_data_queue = finishableQueue(self.initHistoricData(tickerid))
 
         # Request some historical data. Native method in EClient
         self.reqHistoricalData(
