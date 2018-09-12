@@ -40,9 +40,9 @@ class finishableQueue(object):
                 ## give up and return what we have
                 finished = True
                 self.status = TIME_OUT
-        return contents_of_queue
+        return(contents_of_queue)
     def timed_out(self):
-        return self.status is TIME_OUT
+        return(self.status is TIME_OUT)
 
 class TestWrapper(EWrapper):
     """
@@ -89,7 +89,7 @@ class TestWrapper(EWrapper):
     def initHistoricData(self, tickerid):
         historic_data_queue = self._historicDataDict[tickerid] = queue.Queue()
 
-        return historic_data_queue
+        return(historic_data_queue)
 
 
     def historicalData(self, tickerid , bar):
@@ -119,9 +119,7 @@ class TestWrapper(EWrapper):
 
 class TestClient(EClient):
     def __init__(self, wrapper):
-        ## Set up with a wrapper inside
         EClient.__init__(self, wrapper)
-
 
     def resolve_ib_contract(self, ibcontract, reqId=DEFAULT_GET_CONTRACT_ID):
 
@@ -149,7 +147,7 @@ class TestClient(EClient):
 
         if len(new_contract_details)==0:
             print("Failed to get additional contract details: returning unresolved contract")
-            return ibcontract
+            return(ibcontract)
 
         if len(new_contract_details)>1:
             print("got multiple contracts using first one")
@@ -158,7 +156,7 @@ class TestClient(EClient):
 
         resolved_ibcontract=new_contract_details.contract
 
-        return resolved_ibcontract
+        return(resolved_ibcontract)
 
 
     def get_IB_historical_data(self, ibcontract, durationStr="1 Y", barSizeSetting="1 day",
@@ -205,7 +203,7 @@ class TestClient(EClient):
         self.cancelHistoricalData(tickerid)
 
 
-        return historic_data
+        return(historic_data)
 
 
 
