@@ -47,18 +47,13 @@ class finishableQueue(object):
         return self.status is TIME_OUT
 
 class ibApiWrapper(ibapi.wrapper.EWrapper):
-    """
-    The wrapper deals with the action coming back from the IB gateway or TWS instance
-    We override methods in EWrapper that will get called when this action happens, like currentTime
-    Extra methods are added as we need to store the results in this object
-    """
-
+    # The wrapper deals with the action coming back from the IB gateway or TWS instance
     def __init__(self):
         self._ibContractDetails = {}
         self._historicDataDict = {}
         self.initError()
 
-    ## error handling code
+    # error handling code
     def initError(self):
         self._errorQueue = queue.Queue()
 
@@ -74,7 +69,7 @@ class ibApiWrapper(ibapi.wrapper.EWrapper):
         return not self._errorQueue.empty()
 
     def error(self, id, errorCode, errorString):  # Overriding
-        self._errorQueue.put("IB errorID:%d errorCode:%d %s" % (id, errorCode, errorString))
+        self._errorQueue.put("ibApiWrapper|errorID:%d|errorCode:%d|%s" % (id, errorCode, errorString))
 
     def initContractDetails(self, reqId):
         contractDetailsQueue = self._ibContractDetails[reqId] = queue.Queue()
@@ -93,25 +88,17 @@ class ibApiWrapper(ibapi.wrapper.EWrapper):
     ## Historic data code
     def initHistoricData(self, tickerid):
         historic_data_queue = self._historicDataDict[tickerid] = queue.Queue()
+        return historic_data_queue
 
-        return (historic_data_queue)
-
-    def historicalData(self, tickerid, bar):
+    def historicalData(self, tickerid, bar):  # Overriding
         bardata = (bar.date, bar.open, bar.high, bar.low, bar.close, bar.volume)
-        historic_data_dict = self._historicDataDict
-
-        ## Add on to the current data
-        if tickerid not in historic_data_dict.keys():
+        if tickerid not in self._historicDataDict:
             self.initHistoricData(tickerid)
+        self._historicDataDict[tickerid].put(bardata)
 
-        historic_data_dict[tickerid].put(bardata)
-
-    def historicalDataEnd(self, tickerid, start: str, end: str):
-        ## overriden method
-
-        if tickerid not in self._historicDataDict.keys():
+    def historicalDataEnd(self, tickerid, start: str, end: str):  # Overriding
+        if tickerid not in self._historicDataDict:
             self.initHistoricData(tickerid)
-
         self._historicDataDict[tickerid].put(FINISHED)
 
 class TestClient(ibapi.client.EClient):
