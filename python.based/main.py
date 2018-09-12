@@ -57,48 +57,44 @@ class TestWrapper(EWrapper):
     def __init__(self):
         self._ibContractDetails = {}
         self._historicDataDict = {}
-        self.init_error()
+        self.initError()
 
     ## error handling code
-    def init_error(self):
+    def initError(self):
         self._errorQueue = queue.Queue()
 
-    def get_error(self, timeout=5):
-        if self.is_error():
+    def getError(self, timeout=5):
+        if self.isError():
             try:
-                return self._errorQueue.get(timeout=timeout)
+                return(self._errorQueue.get(timeout=timeout))
             except queue.Empty:
-                return None
+                return(None)
+        return(None)
 
-        return None
+    def isError(self):
+        return(not self._errorQueue.empty())
 
-    def is_error(self):
-        an_error_if=not self._errorQueue.empty()
-        return an_error_if
-
-    def error(self, id, errorCode, errorString):
-        ## Overriden method
-        errormsg = "IB error id %d errorcode %d string %s" % (id, errorCode, errorString)
-        self._errorQueue.put(errormsg)
+    def error(self, id, errorCode, errorString): # Overriding
+        self._errorQueue.put("IB errorID:%d errorCode:%d %s" % (id, errorCode, errorString))
 
     ## get contract details code
-    def init_contractdetails(self, reqId):
-        contract_details_queue = self._ibContractDetails[reqId] = queue.Queue()
+    def initContractDetails(self, reqId):
+        contractDetailsQueue = self._ibContractDetails[reqId] = queue.Queue()
 
-        return contract_details_queue
+        return contractDetailsQueue
 
     def contractDetails(self, reqId, contractDetails):
         ## overridden method
 
         if reqId not in self._ibContractDetails.keys():
-            self.init_contractdetails(reqId)
+            self.initContractDetails(reqId)
 
         self._ibContractDetails[reqId].put(contractDetails)
 
     def contractDetailsEnd(self, reqId):
         ## overriden method
         if reqId not in self._ibContractDetails.keys():
-            self.init_contractdetails(reqId)
+            self.initContractDetails(reqId)
 
         self._ibContractDetails[reqId].put(FINISHED)
 
@@ -148,7 +144,7 @@ class TestClient(EClient):
         """
 
         ## Make a place to store the data we're going to return
-        contract_details_queue = finishableQueue(self.init_contractdetails(reqId))
+        contractDetailsQueue = finishableQueue(self.initContractDetails(reqId))
 
         print("Getting full contract details from the server... ")
 
@@ -156,12 +152,12 @@ class TestClient(EClient):
 
         ## Run until we get a valid contract(s) or get bored waiting
         MAX_WAIT_SECONDS = 100
-        new_contract_details = contract_details_queue.get(timeout = MAX_WAIT_SECONDS)
+        new_contract_details = contractDetailsQueue.get(timeout = MAX_WAIT_SECONDS)
 
-        while self.wrapper.is_error():
-            print(self.get_error())
+        while self.wrapper.isError():
+            print(self.getError())
 
-        if contract_details_queue.timed_out():
+        if contractDetailsQueue.timed_out():
             print("Exceeded maximum wait for wrapper to confirm finished - seems to be normal behaviour")
 
         if len(new_contract_details)==0:
@@ -213,8 +209,8 @@ class TestClient(EClient):
 
         historic_data = historic_data_queue.get(timeout = MAX_WAIT_SECONDS)
 
-        while self.wrapper.is_error():
-            print(self.get_error())
+        while self.wrapper.isError():
+            print(self.getError())
 
         if historic_data_queue.timed_out():
             print("Exceeded maximum wait for wrapper to confirm finished - seems to be normal behaviour")
@@ -234,7 +230,7 @@ class ibApiMaster(TestWrapper, TestClient):
         thread = threading.Thread(target = self.run)
         thread.start()
         setattr(self, "_thread", thread)
-        self.init_error()
+        self.initError()
 
 #if __name__ == '__main__':
 
