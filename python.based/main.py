@@ -71,35 +71,35 @@ class ibApiWrapper(ibapi.wrapper.EWrapper):
     def error(self, id, errorCode, errorString):  # Overriding
         self._errorQueue.put("ibApiWrapper|errorID:%d|errorCode:%d|%s" % (id, errorCode, errorString))
 
-    def initContractDetails(self, reqId):
+    def ContractDetailsInit(self, reqId):
         contractDetailsQueue = self._ibContractDetails[reqId] = queue.Queue()
         return contractDetailsQueue
 
     def contractDetails(self, reqId, contractDetails):  # Overriding
         if reqId not in self._ibContractDetails:
-            self.initContractDetails(reqId)
+            self.ContractDetailsInit(reqId)
         self._ibContractDetails[reqId].put(contractDetails)
 
     def contractDetailsEnd(self, reqId):  # Overriding
         if reqId not in self._ibContractDetails:
-            self.initContractDetails(reqId)
+            self.ContractDetailsInit(reqId)
         self._ibContractDetails[reqId].put(FINISHED)
 
-    ## Historic data code
-    def initHistoricData(self, tickerid):
-        historic_data_queue = self._historicDataDict[tickerid] = queue.Queue()
+    # Historic Data
+    def historicalDataInit(self, reqId):
+        historic_data_queue = self._historicDataDict[reqId] = queue.Queue()
         return historic_data_queue
 
-    def historicalData(self, tickerid, bar):  # Overriding
-        bardata = (bar.date, bar.open, bar.high, bar.low, bar.close, bar.volume)
-        if tickerid not in self._historicDataDict:
-            self.initHistoricData(tickerid)
-        self._historicDataDict[tickerid].put(bardata)
+    def historicalData(self, reqId, bar):  # Overriding
+        bardata = (bar.date, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.barCount, bar.average)
+        if reqId not in self._historicDataDict:
+            self.historicalDataInit(reqId)
+        self._historicDataDict[reqId].put(bardata)
 
-    def historicalDataEnd(self, tickerid, start: str, end: str):  # Overriding
-        if tickerid not in self._historicDataDict:
-            self.initHistoricData(tickerid)
-        self._historicDataDict[tickerid].put(FINISHED)
+    def historicalDataEnd(self, reqId, start: str, end: str):  # Overriding
+        if reqId not in self._historicDataDict:
+            self.historicalDataInit(reqId)
+        self._historicDataDict[reqId].put(FINISHED)
 
 class TestClient(ibapi.client.EClient):
     def __init__(self, wrapper):
@@ -113,7 +113,7 @@ class TestClient(ibapi.client.EClient):
         """
 
         ## Make a place to store the data we're going to return
-        contractDetailsQueue = finishableQueue(self.initContractDetails(reqId))
+        contractDetailsQueue = finishableQueue(self.ContractDetailsInit(reqId))
 
         print("Getting full contract details from the server... ")
 
@@ -152,7 +152,7 @@ class TestClient(ibapi.client.EClient):
         """
 
         ## Make a place to store the data we're going to return
-        historic_data_queue = finishableQueue(self.initHistoricData(tickerid))
+        historic_data_queue = finishableQueue(self.historicalDataInit(tickerid))
 
         # Request some historical data. Native method in EClient
         self.reqHistoricalData(
