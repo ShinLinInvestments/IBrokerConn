@@ -182,7 +182,7 @@ class TestClient(ibapi.client.EClient):
 
         self.cancelHistoricalData(tickerid)
 
-        return (historic_data)
+        return historic_data
 
 class ibApiMaster(ibApiWrapper, TestClient):
     def __init__(self, ipaddress, portid, clientid):
