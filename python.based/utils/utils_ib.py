@@ -124,7 +124,7 @@ class IBApiClient(ibapi.client.EClient):
         :returns list of prices in 4 tuples: Open high low close volume
         """
         ## Make a place to store the data we're going to return
-        historic_data_queue = finishableQueue(self.historicalDataInit(reqId))
+        historicalDataQueue = finishableQueue(self.historicalDataInit(reqId))
 
         # Request some historical data. Native method in EClient
         self.reqHistoricalData(
@@ -144,12 +144,12 @@ class IBApiClient(ibapi.client.EClient):
         MAX_WAIT_SECONDS = 200
         print("Getting historical data from the server... could take %d seconds to complete " % MAX_WAIT_SECONDS)
 
-        historic_data = historic_data_queue.get(timeout = MAX_WAIT_SECONDS)
+        historic_data = historicalDataQueue.get(timeout = MAX_WAIT_SECONDS)
 
         while self.wrapper.isError():
             print(self.getError())
 
-        if historic_data_queue.timed_out():
+        if historicalDataQueue.timed_out():
             print("HistoricalData Req", reqId, "expired after", MAX_WAIT_SECONDS, "secs")
 
         self.cancelHistoricalData(reqId)
