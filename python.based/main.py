@@ -1,6 +1,6 @@
 from utils.utils_ib import *
 
-app = ibApiMaster("127.0.0.1", 7496, 1)
+app = IBApiMaster("127.0.0.1", 7496, 1)
 
 contractIB = ibapi.contract.Contract()
 contractIB.secType = "FUT"

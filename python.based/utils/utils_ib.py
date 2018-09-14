@@ -45,7 +45,7 @@ class finishableQueue(object):
     def timed_out(self):
         return self.status is TIME_OUT
 
-class ibApiWrapper(ibapi.wrapper.EWrapper):
+class IBApiWrapper(ibapi.wrapper.EWrapper):
     # The wrapper deals with the action coming back from the IB gateway or TWS instance
     def __init__(self):
         self._contractDetailsDict, self._historicDataDict = {}, {}
@@ -67,7 +67,7 @@ class ibApiWrapper(ibapi.wrapper.EWrapper):
         return not self._errorQueue.empty()
 
     def error(self, id, errorCode, errorString):  # Overriding
-        self._errorQueue.put("ibApiWrapper|errorID:%d|errorCode:%d|%s" % (id, errorCode, errorString))
+        self._errorQueue.put("IBApiWrapper|errorID:%d|errorCode:%d|%s" % (id, errorCode, errorString))
 
     def ContractDetailsInit(self, reqId):
         contractDetailsQueue = self._contractDetailsDict[reqId] = queue.Queue()
@@ -95,7 +95,7 @@ class ibApiWrapper(ibapi.wrapper.EWrapper):
         if reqId not in self._historicDataDict: self.historicalDataInit(reqId)
         self._historicDataDict[reqId].put(FINISHED)
 
-class TestClient(ibapi.client.EClient):
+class IBApiClient(ibapi.client.EClient):
     def __init__(self, wrapper):
         ibapi.client.EClient.__init__(self, wrapper)
 
@@ -107,7 +107,7 @@ class TestClient(ibapi.client.EClient):
         while self.wrapper.isError():
             print(self.getError())
         if contractDetailsQueue.timed_out():
-            print("ContractDetails Req", reqId, "expired after", MAX_WAIT_SECONDS, "secs")
+            print("ContractDetails Req", reqId, "expired after", maxWaitSecs, "secs")
         if len(contractDetailsResponseList) == 0:
             print("Failed to get additional contract details: returning unresolved contract")
             return contractIB
@@ -115,7 +115,7 @@ class TestClient(ibapi.client.EClient):
             print("got multiple contracts using first one")
         return contractDetailsResponseList[0].contract
 
-    def get_IB_historical_data(self, contractIB, durationStr = "1 Y", barSizeSetting = "1 day",
+    def get_IB_historical_data(self, contractIB, durationStr = "1 W", barSizeSetting = "30 secs",
                                reqId = DEFAULT_HISTORIC_DATA_ID):
 
         """
@@ -134,14 +134,14 @@ class TestClient(ibapi.client.EClient):
             durationStr,  # durationStr,
             barSizeSetting,  # barSizeSetting,
             "TRADES",  # whatToShow,
-            1,  # useRTH,
+            0,  # useRTH,
             1,  # formatDate
             False,  # KeepUpToDate <<==== added for api 9.73.2
             []  ## chartoptions not used
         )
 
-        ## Wait until we get a completed data, an error, or get bored waiting
-        MAX_WAIT_SECONDS = 20
+        # Wait until we get a completed data, an error, or get bored waiting
+        MAX_WAIT_SECONDS = 200
         print("Getting historical data from the server... could take %d seconds to complete " % MAX_WAIT_SECONDS)
 
         historic_data = historic_data_queue.get(timeout = MAX_WAIT_SECONDS)
@@ -155,13 +155,12 @@ class TestClient(ibapi.client.EClient):
         self.cancelHistoricalData(reqId)
         return historic_data
 
-class ibApiMaster(ibApiWrapper, TestClient):
+class IBApiMaster(IBApiWrapper, IBApiClient):
     def __init__(self, ipaddress, portid, clientid):
-        ibApiWrapper.__init__(self)
-        TestClient.__init__(self, wrapper = self)
+        IBApiWrapper.__init__(self)
+        IBApiClient.__init__(self, wrapper = self)
         self.connect(ipaddress, portid, clientid)
         thread = threading.Thread(target = self.run)
         thread.start()
         setattr(self, "_thread", thread)
         self.initError()
-
