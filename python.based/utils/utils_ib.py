@@ -6,7 +6,6 @@ import pandas as pd
 import datetime
 import re
 
-DEFAULT_HISTORIC_DATA_ID = 50
 DEFAULT_GET_CONTRACT_ID = 43
 
 ## marker for when queue is finished
@@ -118,8 +117,8 @@ class IBApiClient(ibapi.client.EClient):
             print("got multiple contracts using first one")
         return contractDetailsResponseList[0].contract
 
-    def get_IB_historical_data(self, contractIB, durationStr = "1 W", barSizeSetting = "30 secs",
-                               reqId = DEFAULT_HISTORIC_DATA_ID):
+    def get_IB_historical_data(self, reqId:int, maxWaitSecs:int, contractIB:ibapi.contract.Contract, endDateTime:str, durationStr:str,
+                               barSizeSetting:str, whatToShow:str, useRTH:int, formatDate:int, keepUpToDate:bool, chartOptions = []):
 
         """
         Returns historical prices for a contract, up to today
@@ -130,33 +129,20 @@ class IBApiClient(ibapi.client.EClient):
         historicalDataQueue = finishableQueue(self.historicalDataInit(reqId))
 
         # Request some historical data. Native method in EClient
-        self.reqHistoricalData(
-            reqId,  # reqId,
-            contractIB,  # contract,
-            datetime.datetime.today().strftime("%Y%m%d %H:%M:%S %Z"),  # endDateTime,
-            durationStr,  # durationStr,
-            barSizeSetting,  # barSizeSetting,
-            "TRADES",  # whatToShow,
-            0,  # useRTH,
-            1,  # formatDate
-            False,  # KeepUpToDate <<==== added for api 9.73.2
-            []  ## chartoptions not used
-        )
+        self.reqHistoricalData(reqId = reqId, contract = contractIB, endDateTime = endDateTime, durationStr = durationStr,
+                               barSizeSetting = barSizeSetting, whatToShow = whatToShow, useRTH = useRTH, formatDate = formatDate,
+                               keepUpToDate = keepUpToDate, chartOptions = chartOptions)
+        print("Getting historical data from the server... could take %d seconds to complete " % maxWaitSecs)
 
-        # Wait until we get a completed data, an error, or get bored waiting
-        MAX_WAIT_SECONDS = 200
-        print("Getting historical data from the server... could take %d seconds to complete " % MAX_WAIT_SECONDS)
-
-        historic_data = historicalDataQueue.get(timeout = MAX_WAIT_SECONDS)
+        historic_data = historicalDataQueue.get(timeout = maxWaitSecs)
 
         while self.wrapper.isError():
             print(self.getError())
 
         if historicalDataQueue.timed_out():
-            print("HistoricalData Req", reqId, "expired after", MAX_WAIT_SECONDS, "secs")
+            print("HistoricalData Req", reqId, "expired after", maxWaitSecs, "secs")
 
         self.cancelHistoricalData(reqId)
-        print(historic_data)
         return pd.DataFrame(historic_data, columns = ['date', 'intv', 'open', 'high', 'low', 'close', 'volume', 'count', 'wap'])
 
 class IBApiMaster(IBApiWrapper, IBApiClient):

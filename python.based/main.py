@@ -1,4 +1,5 @@
 from utils.utils_ib import *
+import time
 
 app = IBApiMaster("127.0.0.1", 7496, 1)
 
@@ -11,7 +12,10 @@ contractIB.exchange = "GLOBEX"
 contractIB = app.resolveContractIB(contractIB)
 print(contractIB)
 
-historic_data = app.get_IB_historical_data(contractIB)
+currentYMDHMS = time.strftime("%Y%m%d %H:%M:%S", time.localtime())
+historic_data = app.get_IB_historical_data(reqId = 51, contractIB = contractIB, maxWaitSecs = 200, endDateTime = currentYMDHMS,
+                                           durationStr = '1 W', barSizeSetting = '30 secs', whatToShow = 'TRADES', useRTH = 0,
+                                           formatDate = 1, keepUpToDate = False)
 
 print(historic_data)
 
