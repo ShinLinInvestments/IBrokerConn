@@ -2,6 +2,7 @@ import ibapi.client
 import ibapi.wrapper
 import threading
 import queue
+import pandas as pd
 import datetime
 
 DEFAULT_HISTORIC_DATA_ID = 50
@@ -87,9 +88,9 @@ class IBApiWrapper(ibapi.wrapper.EWrapper):
         return historic_data_queue
 
     def historicalData(self, reqId, bar):  # Overriding
-        bardata = (bar.date, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.barCount, bar.average)
+        barDataTuple = (bar.date, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.barCount, bar.average)
         if reqId not in self._historicDataDict: self.historicalDataInit(reqId)
-        self._historicDataDict[reqId].put(bardata)
+        self._historicDataDict[reqId].put(barDataTuple)
 
     def historicalDataEnd(self, reqId, start: str, end: str):  # Overriding
         if reqId not in self._historicDataDict: self.historicalDataInit(reqId)
@@ -153,7 +154,7 @@ class IBApiClient(ibapi.client.EClient):
             print("HistoricalData Req", reqId, "expired after", MAX_WAIT_SECONDS, "secs")
 
         self.cancelHistoricalData(reqId)
-        return historic_data
+        return pd.DataFrame(historic_data, columns = ['date','open','high','low','close','volume','count','wap'])
 
 class IBApiMaster(IBApiWrapper, IBApiClient):
     def __init__(self, ipaddress, portid, clientid):
