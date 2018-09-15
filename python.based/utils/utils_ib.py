@@ -25,7 +25,6 @@ class finishableQueue(object):
         """
         contents_of_queue = []
         finished = False
-
         while not finished:
             try:
                 current_element = self._queue.get(timeout = timeout)
@@ -41,7 +40,7 @@ class finishableQueue(object):
                 ## give up and return what we have
                 finished = True
                 self.status = TIME_OUT
-        return (contents_of_queue)
+        return contents_of_queue
 
     def timed_out(self):
         return self.status is TIME_OUT
@@ -117,7 +116,7 @@ class IBApiClient(ibapi.client.EClient):
             print("got multiple contracts using first one")
         return contractDetailsResponseList[0].contract
 
-    def get_IB_historical_data(self, reqId:int, maxWaitSecs:int, contractIB:ibapi.contract.Contract, endDateTime:str, durationStr:str,
+    def getHistoricalData(self, reqId:int, maxWaitSecs:int, contractIB:ibapi.contract.Contract, endDateTime:str, durationStr:str,
                                barSizeSetting:str, whatToShow:str, useRTH:int, formatDate:int, keepUpToDate:bool, chartOptions = []):
 
         """
@@ -132,16 +131,12 @@ class IBApiClient(ibapi.client.EClient):
         self.reqHistoricalData(reqId = reqId, contract = contractIB, endDateTime = endDateTime, durationStr = durationStr,
                                barSizeSetting = barSizeSetting, whatToShow = whatToShow, useRTH = useRTH, formatDate = formatDate,
                                keepUpToDate = keepUpToDate, chartOptions = chartOptions)
-        print("Getting historical data from the server... could take %d seconds to complete " % maxWaitSecs)
-
         historic_data = historicalDataQueue.get(timeout = maxWaitSecs)
 
         while self.wrapper.isError():
             print(self.getError())
-
         if historicalDataQueue.timed_out():
             print("HistoricalData Req", reqId, "expired after", maxWaitSecs, "secs")
-
         self.cancelHistoricalData(reqId)
         return pd.DataFrame(historic_data, columns = ['date', 'intv', 'open', 'high', 'low', 'close', 'volume', 'count', 'wap'])
 
