@@ -15,7 +15,7 @@ TIME_OUT = object()
 
 class finishableQueue(object):
     def __init__(self, queue_to_finish):
-        self._queue, self.status = queue_to_finish, STARTED
+        self._queue, self._status = queue_to_finish, STARTED
 
     def get(self, timeout):
         """
@@ -30,7 +30,7 @@ class finishableQueue(object):
                 current_element = self._queue.get(timeout = timeout)
                 if current_element is FINISHED:
                     finished = True
-                    self.status = FINISHED
+                    self._status = FINISHED
                 else:
                     contents_of_queue.append(current_element)
                     ## keep going and try and get more data
@@ -39,11 +39,11 @@ class finishableQueue(object):
                 ## If we hit a time out it's most probable we're not getting a finished element any time soon
                 ## give up and return what we have
                 finished = True
-                self.status = TIME_OUT
+                self._status = TIME_OUT
         return contents_of_queue
 
     def timed_out(self):
-        return self.status is TIME_OUT
+        return self._status is TIME_OUT
 
 class IBApiWrapper(ibapi.wrapper.EWrapper):
     # The wrapper deals with the action coming back from the IB gateway or TWS instance
