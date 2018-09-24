@@ -3,19 +3,13 @@ import ibapi.wrapper
 import threading
 import queue
 import pandas as pd
-import datetime
 import re
 
-DEFAULT_GET_CONTRACT_ID = 43
-
-## marker for when queue is finished
-FINISHED = object()
-STARTED = object()
-TIME_OUT = object()
+FINISHED, TIME_OUT = object(), object()
 
 class finishableQueue(object):
     def __init__(self, queue_to_finish):
-        self._queue, self._status = queue_to_finish, STARTED
+        self._queue, self._status = queue_to_finish, None
 
     def get(self, timeout):
         """
@@ -100,7 +94,7 @@ class IBApiClient(ibapi.client.EClient):
     def __init__(self, wrapper):
         ibapi.client.EClient.__init__(self, wrapper)
 
-    def resolveContractIB(self, contractIB, reqId = DEFAULT_GET_CONTRACT_ID, maxWaitSecs = 20):
+    def resolveContractIB(self, contractIB, reqId, maxWaitSecs = 20):
         contractDetailsQueue = finishableQueue(self.ContractDetailsInit(reqId))
         self.reqContractDetails(reqId, contractIB)
         contractDetailsResponseList = contractDetailsQueue.get(timeout = maxWaitSecs)
@@ -132,7 +126,6 @@ class IBApiClient(ibapi.client.EClient):
                                barSizeSetting = barSizeSetting, whatToShow = whatToShow, useRTH = useRTH, formatDate = formatDate,
                                keepUpToDate = keepUpToDate, chartOptions = chartOptions)
         historic_data = historicalDataQueue.get(timeout = maxWaitSecs)
-
         while self.wrapper.isError():
             print(self.getError())
         if historicalDataQueue.timed_out():

@@ -5,11 +5,11 @@ app = IBApiMaster("127.0.0.1", 7496, 1)
 
 contractIB = ibapi.contract.Contract()
 contractIB.secType = "FUT"
-contractIB.lastTradeDateOrContractMonth = "201809"
+contractIB.lastTradeDateOrContractMonth = "201812"
 contractIB.symbol = "ES"
 contractIB.exchange = "GLOBEX"
 
-contractIB = app.resolveContractIB(contractIB)
+contractIB = app.resolveContractIB(contractIB, reqId = 43, maxWaitSecs = 20)
 print(contractIB)
 
 currentYMDHMS = time.strftime("%Y%m%d %H:%M:%S", time.localtime())
