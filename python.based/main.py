@@ -1,4 +1,4 @@
-from utils.utils_ib import *
+from utils.utils_ib_conn import *
 import time
 
 app = IBApiMaster("127.0.0.1", 7496, 1)
