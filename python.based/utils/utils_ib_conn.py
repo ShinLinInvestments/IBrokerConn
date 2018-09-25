@@ -7,9 +7,9 @@ import re
 
 _utils_ib_isFinished = object()
 
-class finishableQueue(object):
-    def __init__(self, queue_to_finish):
-        self._queue, self._status, self._timedOut = queue_to_finish, None, object()
+class FinishableQueue(object):
+    def __init__(self, queueToFinish):
+        self._queue, self._status, self._timedOut = queueToFinish, None, object()
 
     def get(self, timeout):
         queueContents = []
@@ -83,7 +83,7 @@ class IBApiClient(ibapi.client.EClient):
         ibapi.client.EClient.__init__(self, wrapper)
 
     def resolveContractIB(self, contractIB, reqId, maxWaitSecs = 20):
-        contractDetailsQueue = finishableQueue(self.ContractDetailsInit(reqId))
+        contractDetailsQueue = FinishableQueue(self.ContractDetailsInit(reqId))
         self.reqContractDetails(reqId, contractIB)
         contractDetailsResponseList = contractDetailsQueue.get(timeout = maxWaitSecs)
 
@@ -107,7 +107,7 @@ class IBApiClient(ibapi.client.EClient):
         :returns list of prices in 4 tuples: Open high low close volume
         """
         ## Make a place to store the data we're going to return
-        historicalDataQueue = finishableQueue(self.historicalDataInit(reqId))
+        historicalDataQueue = FinishableQueue(self.historicalDataInit(reqId))
 
         # Request some historical data. Native method in EClient
         self.reqHistoricalData(reqId = reqId, contract = contractIB, endDateTime = endDateTime, durationStr = durationStr,
