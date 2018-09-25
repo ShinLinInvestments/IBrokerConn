@@ -5,15 +5,15 @@ import queue
 import pandas as pd
 import re
 
-_utils_ib_isFinished, TIME_OUT = object(), object()
+_utils_ib_isFinished = object()
 
 class finishableQueue(object):
     def __init__(self, queue_to_finish):
-        self._queue, self._status = queue_to_finish, None
+        self._queue, self._status, self._timedOut = queue_to_finish, None, object()
 
     def get(self, timeout):
         queueContents = []
-        while not (self._status is TIME_OUT or self._status is _utils_ib_isFinished):
+        while not (self._status is self._timedOut or self._status is _utils_ib_isFinished):
             try:
                 current_element = self._queue.get(timeout = timeout)
                 if current_element is _utils_ib_isFinished:
@@ -21,11 +21,11 @@ class finishableQueue(object):
                 else:
                     queueContents.append(current_element)
             except queue.Empty:
-                self._status = TIME_OUT
+                self._status = self._timedOut
         return queueContents
 
     def timed_out(self):
-        return self._status is TIME_OUT
+        return self._status is self._timedOut
 
 class IBApiWrapper(ibapi.wrapper.EWrapper):
     # The wrapper deals with the action coming back from the IB gateway or TWS instance
