@@ -6,7 +6,7 @@ class SecInfo(object):
         self._filePath = os.getcwd() + '/../info/sec.info.csv'
         self._secInfo = pd.read_csv(self._filePath)
 
-    def ibContract2msuk(self):
-        return 1
+    def update(self):
+        self._secInfo.to_csv(self._filePath, index = False)
 
 secInfo = SecInfo()
