@@ -100,12 +100,6 @@ class IBApiClient(ibapi.client.EClient):
 
     def getHistoricalData(self, reqId:int, maxWaitSecs:int, contractIB:ibapi.contract.Contract, endDateTime:str, durationStr:str,
                                barSizeSetting:str, whatToShow:str, useRTH:int, formatDate:int, keepUpToDate:bool, chartOptions = []):
-
-        """
-        Returns historical prices for a contract, up to today
-        contractIB is a Contract
-        :returns list of prices in 4 tuples: Open high low close volume
-        """
         ## Make a place to store the data we're going to return
         historicalDataQueue = FinishableQueue(self.historicalDataInit(reqId))
 
