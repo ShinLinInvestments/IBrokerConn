@@ -9,7 +9,7 @@ IBrokersRef() to get IBrokers R-API reference
 
 ```{r}
 source('utils/utils.R')
-tws.conn = twsConnect(clientId = 1, port = 7496)
+tws.conn = twsConnect(clientId = 2, port = 7496)
 ```
 
 Check the current portfolio value
@@ -39,7 +39,7 @@ tws.future.ixv = twsFuture('IXV', exch='GLOBEX', expiry=expiry.month, multiplier
 tws.future.ixy = twsFuture('IXY', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Consumer Discretionary
 
 tws.contracts = list(tws.future.ym, tws.future.nq, tws.future.es)
-mkt.data = x.ib.getHistoricalData(tws.conn, tws.contracts, start.date = '20180620', barSize = '30 secs', whatToShow = 'TRADES', useRTH = "0")
+mkt.data = x.ib.getHistoricalData(tws.conn, tws.contracts, start.date = '20180620', end.date = '20180709', barSize = '30 secs', whatToShow = 'TRADES', useRTH = "0")
 ```
 
 Data checking

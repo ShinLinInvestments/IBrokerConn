@@ -5,36 +5,24 @@ import queue
 import pandas as pd
 import re
 
-FINISHED, TIME_OUT = object(), object()
+_utils_ib_isFinished, TIME_OUT = object(), object()
 
 class finishableQueue(object):
     def __init__(self, queue_to_finish):
         self._queue, self._status = queue_to_finish, None
 
     def get(self, timeout):
-        """
-        Returns a list of queue elements once timeout is finished, or a FINISHED flag is received in the queue
-        :param timeout: how long to wait before giving up
-        :return: list of queue elements
-        """
-        contents_of_queue = []
-        finished = False
-        while not finished:
+        queueContents = []
+        while not (self._status is TIME_OUT or self._status is _utils_ib_isFinished):
             try:
                 current_element = self._queue.get(timeout = timeout)
-                if current_element is FINISHED:
-                    finished = True
-                    self._status = FINISHED
+                if current_element is _utils_ib_isFinished:
+                    self._status = _utils_ib_isFinished
                 else:
-                    contents_of_queue.append(current_element)
-                    ## keep going and try and get more data
-
+                    queueContents.append(current_element)
             except queue.Empty:
-                ## If we hit a time out it's most probable we're not getting a finished element any time soon
-                ## give up and return what we have
-                finished = True
                 self._status = TIME_OUT
-        return contents_of_queue
+        return queueContents
 
     def timed_out(self):
         return self._status is TIME_OUT
@@ -73,7 +61,7 @@ class IBApiWrapper(ibapi.wrapper.EWrapper):
 
     def contractDetailsEnd(self, reqId):  # Overriding
         if reqId not in self._contractDetailsDict: self.ContractDetailsInit(reqId)
-        self._contractDetailsDict[reqId].put(FINISHED)
+        self._contractDetailsDict[reqId].put(_utils_ib_isFinished)
 
     # Historic Data
     def historicalDataInit(self, reqId):
@@ -88,7 +76,7 @@ class IBApiWrapper(ibapi.wrapper.EWrapper):
 
     def historicalDataEnd(self, reqId, start: str, end: str):  # Overriding
         if reqId not in self._historicDataDict: self.historicalDataInit(reqId)
-        self._historicDataDict[reqId].put(FINISHED)
+        self._historicDataDict[reqId].put(_utils_ib_isFinished)
 
 class IBApiClient(ibapi.client.EClient):
     def __init__(self, wrapper):
