@@ -1,3 +1,4 @@
+from utils.utils_info import *
 from utils.utils_ib_conn import *
 import time
 
@@ -18,5 +19,7 @@ historic_data = app.getHistoricalData(reqId = 51, contractIB = contractIB, maxWa
                                       formatDate = 1, keepUpToDate = False)
 
 print(historic_data)
+
+print(secInfo)
 
 app.disconnect()
