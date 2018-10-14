@@ -3,7 +3,7 @@ import ibapi.wrapper
 import threading
 import queue
 import pandas as pd
-import re
+from xutils.xutils_environ import *
 
 _utils_ib_isFinished = object()
 
@@ -82,19 +82,19 @@ class IBApiClient(ibapi.client.EClient):
         ibapi.client.EClient.__init__(self, wrapper)
 
     def resolveContractIB(self, contractIB, reqId, maxWaitSecs = 20):
+        xlog.info("ContractDetails Req = " + str(reqId) + ": " + str(contractIB))
         contractDetailsQueue = FinishableQueue(self.ContractDetailsInit(reqId))
         self.reqContractDetails(reqId, contractIB)
         contractDetailsResponseList = contractDetailsQueue.get(timeout = maxWaitSecs)
-
         while self.wrapper.isError():
-            print(self.getError())
+            xlog.warn(self.getError())
         if contractDetailsQueue.timed_out():
-            print("ContractDetails Req", reqId, "expired after", maxWaitSecs, "secs")
+            xlog.warn("ContractDetails Req = " + str(reqId) + "expired after" + maxWaitSecs + "secs")
         if len(contractDetailsResponseList) == 0:
-            print("Failed to get additional contract details: returning unresolved contract")
+            xlog.warn("Failed to get additional contract details: returning unresolved contract")
             return contractIB
         if len(contractDetailsResponseList) > 1:
-            print("got multiple contracts using first one")
+            xlog.warn("got multiple contracts using first one")
         return contractDetailsResponseList[0].contract
 
     def getHistoricalData(self, reqId:int, maxWaitSecs:int, contractIB:ibapi.contract.Contract, endDateTime:str, durationStr:str,
@@ -108,9 +108,9 @@ class IBApiClient(ibapi.client.EClient):
                                keepUpToDate = keepUpToDate, chartOptions = chartOptions)
         historic_data = historicalDataQueue.get(timeout = maxWaitSecs)
         while self.wrapper.isError():
-            print(self.getError())
+            xlog.warn(self.getError())
         if historicalDataQueue.timed_out():
-            print("HistoricalData Req", reqId, "expired after", maxWaitSecs, "secs")
+            xlog.warn("HistoricalData Req" + reqId + "expired after" + maxWaitSecs + "secs")
         self.cancelHistoricalData(reqId)
         return pd.DataFrame(historic_data, columns = ['datetime', 'open', 'high', 'low', 'close', 'volume', 'count', 'wap'])
 
