@@ -19,5 +19,6 @@ historic_data = app.getHistoricalData(reqId = 51, contractIB = contractIB, maxWa
 
 print(historic_data)
 
+xutils.write_csv(historic_data, 'path', 'datetime')
 
 app.disconnect()
