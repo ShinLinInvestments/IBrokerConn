@@ -1,10 +1,9 @@
-from utils.utils_info import *
-from utils.utils_ib_conn import *
 import time
+import xutils
 
-app = IBApiMaster("127.0.0.1", 7496, 1)
+app = xutils.IBApiMaster("127.0.0.1", 7496, 1)
 
-contractIB = ibapi.contract.Contract()
+contractIB = xutils.ibapi.contract.Contract()
 contractIB.secType = "CONTFUT"
 contractIB.symbol = "ES"
 contractIB.exchange = "GLOBEX"
@@ -20,6 +19,5 @@ historic_data = app.getHistoricalData(reqId = 51, contractIB = contractIB, maxWa
 
 print(historic_data)
 
-print(secInfo)
 
 app.disconnect()

@@ -180,67 +180,16 @@ $(document).ready(function () {
 <p>IBrokersRef() to get IBrokers R-API reference</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKCd1dGlscy91dGlscy5SJylcbnR3cy5jb25uID0gdHdzQ29ubmVjdChjbGllbnRJZCA9IDIsIHBvcnQgPSA3NDk2KVxuYGBgIn0= -->
-<pre class="r"><code>source('utils/utils.R')
-tws.conn = twsConnect(clientId = 2, port = 7496)</code></pre>
-<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Check the current portfolio value</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYWNjdCA9IHJlcUFjY291bnRVcGRhdGVzKHR3cy5jb25uKVxuYGBgIn0= -->
-<pre class="r"><code>acct = reqAccountUpdates(tws.conn)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiMiAtMSAyMTA3IEhNRFMgZGF0YSBmYXJtIGNvbm5lY3Rpb24gaXMgaW5hY3RpdmUgYnV0IHNob3VsZCBiZSBhdmFpbGFibGUgdXBvbiBkZW1hbmQuaWxobWRzIFxuV2FybmluZyBpbiBldmFsKGFzLm5hbWUobikpIDog5YWz6Zet5LiN5YaN5L2/55So55qE6ZO+57uTMygtPmxvY2FsaG9zdDo3NDk2KVxuIn0= -->
-<pre><code>2 -1 2107 HMDS data farm connection is inactive but should be available upon demand.ilhmds 
-Warning in eval(as.name(n)) : 关闭不再使用的链结3(-&gt;localhost:7496)</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudHdzUG9ydGZvbGlvVmFsdWUoYWNjdClcbmBgYCJ9 -->
-<pre class="r"><code>twsPortfolioValue(acct)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6OCwibnJvdyI6NH0sInJkZiI6Ikg0c0lBQUFBQUFBQUEzMVNPMDhjTVJEMnZzS3lpQXNTVmFvSUNWR0ZrMGlFbENaaWVZam1FT0d0QzByajdIa3ZLM3pydytzOUFpSUlDZEdUanFPZ0lCRktTVW1WUUJ1QlJNYy9vTWtmU01YRlh0dWIzT1V4MHE1blBzOTg4L0FzVEpXZmVtVVBBR0FDeXpHQWFYSFZOdm5QQURib0Z1YzdBS3grcnJqODdCVzMyYVVJNElDMDJ3SWVZTlJBT09GYVgzWXJVWE42UW1sT2VieTArbHdaOXN1RnlSbXRMNjZVWDNXUU9RR0dpZWJLTTRRd1lJUnk3ZjR2TlJueUV6Um1TMFdhS3RKYVhDcHBkWHA1U1hwWnJmL3hnNExnOTAvQm8yYXplUVNVK0x2MkZaZHJQeHc2bi8rKy8vaVgzOTJ4QUhLLzdkT1FTOVVQM285K1R1Wkh0Ti9YVHdQZkdnY25aNjBmMG0vc3k5VDEzdFdUczdITGJlTUR3b2M1M3dob0UzOVFuVzRPRlZUL0VxYzdJbDhJL3BUTTcrTDF6Y2RiNzhWNjdsOFNiVFdQL05HWnJKL084Y2V3aHZUNFhRMWlFa0Nzaks0RUJXeXpqcFRaVTROMERiRVZpTk1jZ2cxRVlSVk5rb1RwQVZQRVVob3J5NjJUSkdJUjBYWVBSUkJIVzZneU42dFhvemVOZndmYmkreW1aS09vQ3hYYllPN0s1dXgvdks5WGdRd1dROHBENUJ1MzBYV1J1aWlHazVsaTdaMk9ZSU4yQUEvVFdDU3ZEQWR2MDNodCtKbElBT1FhQWxXUW9aNUk2NjVNYWV2Q0hEMFhGRmVqR09WemhtK1Fubk9CTjVuMVdLelRLTmFEOURpYUZCbGgrWHQ0QWNFYWtmdDcveE80c1FrSjVBTUFBQT09In0= -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["local"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["sectype"],"name":[2],"type":["fctr"],"align":["left"]},{"label":["marketValue"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["averageCost"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["return"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["position"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["realizedPNL"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["unrealizedPNL"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"FB","2":"STK","3":"2816.05","4":"2931.3100","5":"-0.0393203","6":"17","7":"0.0","8":"-115.26"},{"1":"XAKZ8","2":"FUT","3":"0.00","4":"0.0000","5":"NaN","6":"0","7":"295.9","8":"0.00"},{"1":"ORCL","2":"STK","3":"512.60","4":"458.4000","5":"0.1182373","6":"10","7":"0.0","8":"54.20"},{"1":"SVXY","2":"STK","3":"177.21","4":"155.9128","5":"0.1365969","6":"3","7":"0.0","8":"21.30"}],"options":{"columns":{"min":{},"max":[10],"total":[8]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Retrieve e-mini data</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXhwaXJ5Lm1vbnRoID0gJzIwMTgwOSdcbnR3cy5mdXR1cmUueW0gPSB0d3NGdXR1cmUoJ1lNJywgZXhjaD0nRUNCT1QnLCBleHBpcnk9ZXhwaXJ5Lm1vbnRoLCBtdWx0aXBsaWVyPSc1JylcbnR3cy5mdXR1cmUubnEgPSB0d3NGdXR1cmUoJ05RJywgZXhjaD0nR0xPQkVYJywgZXhwaXJ5PWV4cGlyeS5tb250aCwgbXVsdGlwbGllcj0nMjAnKVxudHdzLmZ1dHVyZS5lcyA9IHR3c0Z1dHVyZSgnRVMnLCBleGNoPSdHTE9CRVgnLCBleHBpcnk9ZXhwaXJ5Lm1vbnRoLCBtdWx0aXBsaWVyPSc1MCcpXG50d3MuZnV0dXJlLml4YiA9IHR3c0Z1dHVyZSgnSVhCJywgZXhjaD0nR0xPQkVYJywgZXhwaXJ5PWV4cGlyeS5tb250aCwgbXVsdGlwbGllcj0nMTAwJykgIyBNYXRlcmlhbHNcbnR3cy5mdXR1cmUuaXhlID0gdHdzRnV0dXJlKCdJWEUnLCBleGNoPSdHTE9CRVgnLCBleHBpcnk9ZXhwaXJ5Lm1vbnRoLCBtdWx0aXBsaWVyPScxMDAnKSAjIEVuZXJneVxudHdzLmZ1dHVyZS5peGkgPSB0d3NGdXR1cmUoJ0lYSScsIGV4Y2g9J0dMT0JFWCcsIGV4cGlyeT1leHBpcnkubW9udGgsIG11bHRpcGxpZXI9JzEwMCcpICMgSW5kdXN0cmlhbFxudHdzLmZ1dHVyZS5peG0gPSB0d3NGdXR1cmUoJ0lYTScsIGV4Y2g9J0dMT0JFWCcsIGV4cGlyeT1leHBpcnkubW9udGgsIG11bHRpcGxpZXI9JzI1MCcpICMgRmluYW5jaWFsXG50d3MuZnV0dXJlLml4ciA9IHR3c0Z1dHVyZSgnSVhSJywgZXhjaD0nR0xPQkVYJywgZXhwaXJ5PWV4cGlyeS5tb250aCwgbXVsdGlwbGllcj0nMTAwJykgIyBDb25zdW1lciBTdGFwbGVzXG50d3MuZnV0dXJlLml4dCA9IHR3c0Z1dHVyZSgnSVhUJywgZXhjaD0nR0xPQkVYJywgZXhwaXJ5PWV4cGlyeS5tb250aCwgbXVsdGlwbGllcj0nMTAwJykgIyBUZWNobm9sb2d5XG50d3MuZnV0dXJlLml4dSA9IHR3c0Z1dHVyZSgnSVhVJywgZXhjaD0nR0xPQkVYJywgZXhwaXJ5PWV4cGlyeS5tb250aCwgbXVsdGlwbGllcj0nMTAwJykgIyBVdGlsaXRpZXNcbnR3cy5mdXR1cmUuaXh2ID0gdHdzRnV0dXJlKCdJWFYnLCBleGNoPSdHTE9CRVgnLCBleHBpcnk9ZXhwaXJ5Lm1vbnRoLCBtdWx0aXBsaWVyPScxMDAnKSAjIEhlYWx0aCBDYXJlXG50d3MuZnV0dXJlLml4eSA9IHR3c0Z1dHVyZSgnSVhZJywgZXhjaD0nR0xPQkVYJywgZXhwaXJ5PWV4cGlyeS5tb250aCwgbXVsdGlwbGllcj0nMTAwJykgIyBDb25zdW1lciBEaXNjcmV0aW9uYXJ5XG50d3MuY29udHJhY3RzID0gbGlzdCh0d3MuZnV0dXJlLnltLCB0d3MuZnV0dXJlLm5xLCB0d3MuZnV0dXJlLmVzKVxubWt0LmRhdGEgPSB4LmliLmdldEhpc3RvcmljYWxEYXRhKHR3cy5jb25uLCB0d3MuY29udHJhY3RzLCBzdGFydC5kYXRlID0gJzIwMTgwNjIwJywgZW5kLmRhdGUgPSAnMjAxODA3MDknLCBiYXJTaXplID0gJzMwIHNlY3MnLCB3aGF0VG9TaG93ID0gJ1RSQURFUycsIHVzZVJUSCA9IFwiMFwiKVxuYGBgIn0= -->
-<pre class="r"><code>expiry.month = '201809'
-tws.future.ym = twsFuture('YM', exch='ECBOT', expiry=expiry.month, multiplier='5')
-tws.future.nq = twsFuture('NQ', exch='GLOBEX', expiry=expiry.month, multiplier='20')
-tws.future.es = twsFuture('ES', exch='GLOBEX', expiry=expiry.month, multiplier='50')
-tws.future.ixb = twsFuture('IXB', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Materials
-tws.future.ixe = twsFuture('IXE', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Energy
-tws.future.ixi = twsFuture('IXI', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Industrial
-tws.future.ixm = twsFuture('IXM', exch='GLOBEX', expiry=expiry.month, multiplier='250') # Financial
-tws.future.ixr = twsFuture('IXR', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Consumer Staples
-tws.future.ixt = twsFuture('IXT', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Technology
-tws.future.ixu = twsFuture('IXU', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Utilities
-tws.future.ixv = twsFuture('IXV', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Health Care
-tws.future.ixy = twsFuture('IXY', exch='GLOBEX', expiry=expiry.month, multiplier='100') # Consumer Discretionary
-tws.contracts = list(tws.future.ym, tws.future.nq, tws.future.es)
-mkt.data = x.ib.getHistoricalData(tws.conn, tws.contracts, start.date = '20180620', end.date = '20180709', barSize = '30 secs', whatToShow = 'TRADES', useRTH = &quot;0&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoid2FpdGluZyBmb3IgVFdTIHJlcGx5IG9uIFlNIC4uLi4uXG4ifQ== -->
-<pre><code>waiting for TWS reply on YM .....</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiTm8gc2VjdXJpdHkgZGVmaW5pdGlvbiBoYXMgYmVlbiBmb3VuZCBmb3IgdGhlIHJlcXVlc3RcbiJ9 -->
-<pre><code>No security definition has been found for the request</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiZmFpbGVkLlxuIn0= -->
-<pre><code>failed.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gcHJldHR5TnVtKC5JbnRlcm5hbChmb3JtYXQoeCwgdHJpbSwgZGlnaXRzLCBuc21hbGwsIHdpZHRoLCAzTCwgIDogXG4gICd0cmltJ+WPguaVsOS4jeWvuVxuIn0= -->
-<pre><code>Error in prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  : 
-  'trim'参数不对</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Data checking</p>

@@ -9,4 +9,5 @@ class SecInfo(object):
     def update(self):
         self._secInfo.to_csv(self._filePath, index = False)
 
+
 secInfo = SecInfo()
