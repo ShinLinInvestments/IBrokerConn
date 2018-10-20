@@ -19,7 +19,7 @@ historic_data = app.getHistoricalData(reqId = 51, contractIB = contractIB, maxWa
                                       formatDate = 1, keepUpToDate = False)
 
 print(historic_data)
-print(datetime.datetime.today())
+
 xutils.write_csv(historic_data, 'path', 'datetime')
 
 app.disconnect()
