@@ -1,5 +1,6 @@
 <xutils>
     <time_zone>America/New_York</time_zone>
     <log_level>DEBUG</log_level>
+    <num_cores>2</num_cores>
 	<path_mktdata></path_mktdata>
 </xutils>

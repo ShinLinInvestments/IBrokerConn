@@ -9,3 +9,5 @@ logging.basicConfig(format = '%(asctime)s|%(levelname)s|%(funcName)s|%(thread)d|
 xlog = logging.getLogger('SLFD')
 xlog.setLevel(level = config_manager['xutils']['log_level'])
 
+xutils_num_cores = int(config_manager['xutils']['num_cores'])
+

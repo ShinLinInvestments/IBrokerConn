@@ -17,9 +17,9 @@ currentYMDHMS = time.strftime("%Y%m%d %H:%M:%S", time.localtime())
 historic_data = app.getHistoricalData(reqId = 51, contractIB = contractIB, maxWaitSecs = 200, endDateTime = currentYMDHMS,
                                       durationStr = '1 W', barSizeSetting = '30 secs', whatToShow = 'TRADES', useRTH = 0,
                                       formatDate = 1, keepUpToDate = False)
-
+historic_data['datetime'] = historic_data['datetime'].apply(lambda x : x.strftime("%Y%m%d.%H%M%S"))
 print(historic_data)
 
-xutils.write_csv(historic_data, 'path', 'datetime')
+xutils.write_csv(historic_data, '/Volumes/Xingsiz500G/workspace/data/emini/ohlcv/ohlcv.', 'datetime')
 
 app.disconnect()
